@@ -1,0 +1,12 @@
+[Unit]
+Description=WireGuard
+After=network.target
+
+[Service]
+Type=simple
+Environment="WGUI_USERNAME={{ wgui_username }}"
+Environment="WGUI_PASSWORD={{ wgui_password }}"
+ExecStart=/usr/sbin/wireguard-ui
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,43 @@
+---
+# tasks file for ansible-role-wgui
+- name: Download an extract wireguard-ui
+  unarchive:
+    src: https://github.com/ngoduykhanh/wireguard-ui/releases/download/v{{wg_ui_version}}/wireguard-ui-v{{wg_ui_version}}-{{wg_ui_os}}-{{wg_ui_architecture}}.tar.gz
+    dest: /usr/sbin/
+    remote_src: yes
+    mode: '0700'
+    group: 'root'
+    owner: 'root'    
+
+- name: Copy systemd units
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner }}" 
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+    backup: yes
+  with_items:
+    - { src: wgui.path, dest: /etc/systemd/system/wgui.path, owner: root, group: root, mode: "0600" }
+
+- name: Create systemd units from template
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner }}" 
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+  with_items:
+    - { src: wgui.service, dest: /etc/systemd/system/wgui.service, owner: root, group: root, mode: "0600" }
+    - { src: wgconfig.service, dest: /etc/systemd/system/wgconfig.service, owner: root, group: root, mode: "0600" }
+
+- name: Enable and start services
+  systemd: 
+    state: "{{ item.state }}" 
+    name: "{{ item.name }}" 
+    daemon_reload: "{{ item.daemon_reload }}"
+    enabled: "{{ item.enabled }}"
+  with_items:
+    - { state: started, name: wgconfig.service, daemon_reload: yes, enabled: yes }
+    - { state: started, name: wgui.path, daemon_reload: yes, enabled: yes }
+    - { state: started, name: wgui.service, daemon_reload: yes, enabled: yes }

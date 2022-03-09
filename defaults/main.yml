@@ -1,0 +1,5 @@
+---
+# defaults file for ansible-role-template
+wg_ui_version: "0.3.6"
+wg_ui_os: "linux"
+wg_ui_architecture: "amd64"
